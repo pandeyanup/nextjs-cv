@@ -24,7 +24,7 @@ export default function RootLayout({
         <link
           rel="icon"
           className="rounded-full radius-2xl"
-          href="https://media.licdn.com/dms/image/D5603AQG6rXeXwqpnFA/profile-displayphoto-shrink_800_800/0/1690801070395?e=1701302400&v=beta&t=QQKtQKtLkSYrHCSpvepuvqfuRsLX_p2WgggK11oe9_Q"
+          href="https://raw.githubusercontent.com/pandeyanup/nextjs-cv/main/public/user.jpeg"
           sizes="any"
         />
       </head>
