@@ -9,8 +9,8 @@ import ThemeToggle from "@/components/ThemeToggle";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "UserName",
-  description: "NextGen CV Website",
+  title: "Anup Pandey",
+  description: "Anup Pandey. Full-Stack Developer | Backend Developer",
 };
 
 export default function RootLayout({

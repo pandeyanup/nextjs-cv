@@ -121,7 +121,7 @@ export function MyNavigationMenu() {
             Skills
           </NavigationMenuTrigger>
           <NavigationMenuContent>
-            <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+            <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] grid-cols-3 lg:w-[600px]">
               {skill?.all.map((component) => (
                 <ListItem key={component.id} title={component.name}>
                   <div className="flex">
