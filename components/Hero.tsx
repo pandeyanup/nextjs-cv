@@ -54,8 +54,8 @@ const Hero = (props: Props) => {
         !skillError &&
         !userError &&
         user?.name.length !== 0 && (
-          <div className="flex flex-col">
-            <div className="flex snap-y snap-mandatory z-0">
+          <div className="flex flex-col sm:flex-row">
+            <div className="flex snap-y snap-mandatory z-0 w-full sm:w-1/2">
               <motion.div
                 initial={{ opacity: 0, y: -50 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -84,6 +84,8 @@ const Hero = (props: Props) => {
                   </h1>
                 </div>
               </motion.div>
+            </div>
+            <div className="flex snap-y snap-mandatory z-0 w-full sm:w-1/2">
               <motion.div
                 initial={{ opacity: 0, x: 50 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -93,7 +95,7 @@ const Hero = (props: Props) => {
                 <div className="flex justify-center items-center uppercase tracking-[12px] mb-10 text-3xl font-bold">
                   About
                 </div>
-                <p className="text-xl pr-4 -ml-9">{user?.About.about}</p>
+                <p className="text-xl px-2">{user?.About.about}</p>
               </motion.div>
             </div>
           </div>
