@@ -90,22 +90,24 @@ export function MyNavigationMenu() {
               <ListItem title="About">{about?.About.bio}</ListItem>
               <ListItem title="Address">
                 <div>
-                  <p>City: {about?.Address.city}</p>
-                  <p>State: {about?.Address.state}</p>
+                  <p>{about?.Address.city}</p>
+                  <p>{about?.Address.state}</p>
                 </div>
               </ListItem>
               <ListItem title="Contact">
-                {socials?.map((social) => (
-                  <div key={social.id} className="space-x-2">
-                    <a href={social.href}>
-                      <img
-                        className="h-6 w-6"
-                        src={social.src}
-                        alt={social.alt}
-                      />
-                    </a>
-                  </div>
-                ))}
+                <ul className="grid space-x-2 pt-2 grid-cols-6">
+                  {socials?.map((social) => (
+                    <div key={social.id}>
+                      <a href={social.href}>
+                        <img
+                          className="h-6 w-6"
+                          src={social.src}
+                          alt={social.alt}
+                        />
+                      </a>
+                    </div>
+                  ))}
+                </ul>
               </ListItem>
             </ul>
           </NavigationMenuContent>
@@ -119,7 +121,7 @@ export function MyNavigationMenu() {
             Skills
           </NavigationMenuTrigger>
           <NavigationMenuContent>
-            <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
+            <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
               {skill?.all.map((component) => (
                 <ListItem key={component.id} title={component.name}>
                   <div className="flex">
@@ -128,7 +130,6 @@ export function MyNavigationMenu() {
                       className="h-12 w-12 rounded-full"
                       alt={component.name}
                     />
-                    <p className="flex items-center">{component.proficiency}</p>
                   </div>
                 </ListItem>
               ))}

@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 export async function GET(req: Request) {
   const education = await db.user.findFirst({
     where: {
-      name: "Kaito Sato",
+      name: "Anup Pandey",
     },
     select: {
       Education: true,

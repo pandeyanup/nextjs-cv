@@ -61,8 +61,8 @@ const Hero = (props: Props) => {
                 <h2 className="text-5xl lg:text-6xl font-semibold px-10 uppercasepb-2 tracking-[10px]">
                   {user?.name}
                 </h2>
-                <h2 className="text-sm uppercase pb-2 tracking-[8px]">
-                  {user?.About.bio}
+                <h2 className="text-sm uppercase py-2 tracking-[8px]">
+                  {user?.About.title}
                 </h2>
                 <h1 className="text-4xl lg:text-5xl px-10">
                   <span className="mr-3 ">
