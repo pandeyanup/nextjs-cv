@@ -5,6 +5,7 @@ import { Skill } from "@prisma/client";
 import useFetch from "@/hooks/useFetch";
 import { motion } from "framer-motion";
 import RightClick from "./RightClick";
+import Social from "./Social";
 
 type SkillAPIData = {
   all: Skill[];
@@ -73,15 +74,18 @@ const Hero = (props: Props) => {
                   <h2 className="text-5xl lg:text-6xl font-semibold px-10 uppercasepb-2 tracking-[10px]">
                     {user?.name}
                   </h2>
-                  <h2 className="text-sm uppercase py-2 tracking-[8px]">
+                  <h2 className="text-sm uppercase py-2 tracking-[8px] text-red-400 font-semibold">
                     {user?.About.title}
                   </h2>
                   <h1 className="text-4xl lg:text-5xl px-10">
-                    <span className="mr-3 ">
+                    <span className="mr-3 text-green-500">
                       {text}
                       <Cursor cursorColor="green" />
                     </span>
                   </h1>
+                  <div className="flex justify-center py-6">
+                    <Social className="grid space-x-4 pt-2 grid-cols-6 justify-between" />
+                  </div>
                 </div>
               </motion.div>
             </div>

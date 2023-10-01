@@ -35,15 +35,13 @@ const Social = (props: Props) => {
       });
   }, []);
   return (
-    <>
+    <div className={props.className}>
       {socials?.map((social) => (
-        <div key={social.id} className={props.className}>
-          <a href={social.href}>
-            <img className="h-6 w-6" src={social.src} alt={social.alt} />
-          </a>
-        </div>
+        <a key={social.id} href={social.href}>
+          <img className="h-6 w-6" src={social.src} alt={social.alt} />
+        </a>
       ))}
-    </>
+    </div>
   );
 };
 
