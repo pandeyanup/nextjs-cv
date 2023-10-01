@@ -24,7 +24,7 @@ export default function RootLayout({
         <link
           rel="icon"
           className="rounded-full radius-2xl"
-          href="https://raw.githubusercontent.com/pandeyanup/nextjs-cv/main/public/usericon.png"
+          href="/favicon.ico"
           sizes="any"
         />
       </head>
