@@ -35,7 +35,7 @@ const RightClick = (props: Props) => {
             router.push("/skill");
           }}
         >
-          Sills
+          Skills
         </ContextMenuItem>
         <ContextMenuItem
           onClick={() => {
