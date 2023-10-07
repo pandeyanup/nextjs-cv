@@ -43,7 +43,9 @@ const Project = (props: Props) => {
                     {p.description}
                   </div>
                   <div className="text-lg mb-2 text-muted-foreground">
-                    <Link href={p.link}>{p.link}</Link>
+                    <Link href={p.link}>
+                      <p className="truncate">{p.link}</p>
+                    </Link>
                   </div>
                 </div>
               ))}

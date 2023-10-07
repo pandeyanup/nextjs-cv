@@ -93,7 +93,7 @@ const Hero = (props: Props) => {
                 <div className="flex justify-center items-center uppercase tracking-[12px] mb-10 text-3xl font-bold">
                   About
                 </div>
-                <p className="text-xl px-2">{user?.About.about}</p>
+                <p className="prose">{user?.About.about}</p>
               </motion.div>
             </div>
           </div>
