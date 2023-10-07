@@ -1,7 +1,7 @@
 "use client";
 
-import useFetch from "@/hooks/useFetch";
-import { Education } from "@prisma/client";
+import { Loader2 } from "lucide-react";
+import { trpc } from "../_trpc/client";
 
 type Props = {};
 
@@ -10,7 +10,7 @@ const Education = (props: Props) => {
     data: education,
     isLoading,
     error,
-  } = useFetch<Education[]>("/api/education/");
+  } = trpc.getUserEducation.useQuery();
 
   return (
     <>
@@ -19,7 +19,7 @@ const Education = (props: Props) => {
       </div>
       {isLoading && (
         <p className="flex items-center justify-center content-center">
-          Loading...
+          <Loader2 className="h-4 w-4 animate-spin mr-4" /> Loading...
         </p>
       )}
       {!isLoading && education?.length === 0 && (

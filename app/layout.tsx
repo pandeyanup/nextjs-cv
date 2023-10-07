@@ -1,10 +1,11 @@
-import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { Toaster } from "@/components/ui/toaster";
-import { ThemeProvider } from "@/components/theme-provider";
+import "./globals.css";
 import { MyNavigationMenu } from "@/components/MyNavigationMenu";
-import ThemeToggle from "@/components/ThemeToggle";
+import Providers from "@/components/Providers";
+import ThemeToggle from "@/components/theme/ThemeToggle";
+import { ThemeProvider } from "@/components/theme/theme-provider";
+import { Toaster } from "sonner";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,31 +21,33 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <head>
-        <link
-          rel="icon"
-          className="rounded-full radius-2xl"
-          href="/favicon.ico"
-          sizes="any"
-        />
-      </head>
-      <body className={inter.className}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="light"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <header>
-            <div className="flex justify-between">
-              <MyNavigationMenu />
-              <ThemeToggle />
-            </div>
-          </header>
-          {children}
-          <Toaster />
-        </ThemeProvider>
-      </body>
+      <Providers>
+        <head>
+          <link
+            rel="icon"
+            className="rounded-full radius-2xl"
+            href="/favicon.ico"
+            sizes="any"
+          />
+        </head>
+        <body className={inter.className}>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="light"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <header>
+              <div className="flex justify-between">
+                <MyNavigationMenu />
+                <ThemeToggle />
+              </div>
+            </header>
+            {children}
+            <Toaster richColors closeButton />
+          </ThemeProvider>
+        </body>
+      </Providers>
     </html>
   );
 }

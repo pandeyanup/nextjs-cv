@@ -1,14 +1,10 @@
 "use client";
 
-import useFetch from "@/hooks/useFetch";
-import { Skill } from "@prisma/client";
-
-type Skills = {
-  all: Skill[];
-};
+import { Loader2 } from "lucide-react";
+import { trpc } from "../_trpc/client";
 
 const Skill = () => {
-  const { data: skill, isLoading, error } = useFetch<Skills>("/api/skill/");
+  const { data: skill, isLoading, error } = trpc.getUserSkills.useQuery();
   return (
     <>
       <div className="flex justify-center items-center uppercase tracking-[12px] mb-10 text-3xl font-bold">
@@ -16,7 +12,7 @@ const Skill = () => {
       </div>
       {isLoading && (
         <p className="flex items-center justify-center content-center">
-          Loading...
+          <Loader2 className="h-4 w-4 animate-spin mr-4" /> Loading...
         </p>
       )}
       {!isLoading && skill?.all.length === 0 && (

@@ -1,12 +1,12 @@
 "use client";
 
-import useFetch from "@/hooks/useFetch";
-import { About } from "@/types/about";
+import { Loader2 } from "lucide-react";
+import { trpc } from "../_trpc/client";
 
 type Props = {};
 
-const About = (props: Props) => {
-  const { data: about, isLoading, error } = useFetch<About>("/api/about/");
+const page = (props: Props) => {
+  const { data: about, isLoading, error } = trpc.getUserAbout.useQuery();
 
   return (
     <>
@@ -15,7 +15,7 @@ const About = (props: Props) => {
       </div>
       {isLoading && (
         <p className="flex items-center justify-center content-center">
-          Loading...
+          <Loader2 className="h-4 w-4 animate-spin mr-4" /> Loading...
         </p>
       )}
       {!isLoading && about?.About.title.length === 0 && (
@@ -59,4 +59,4 @@ const About = (props: Props) => {
   );
 };
 
-export default About;
+export default page;

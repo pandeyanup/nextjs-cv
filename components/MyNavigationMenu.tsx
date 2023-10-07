@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@/lib/utils";
+import { trpc } from "@/app/_trpc/client";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -9,13 +9,10 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
+import { cn } from "@/lib/utils";
+import { Skill } from "@prisma/client";
 import { useRouter } from "next/navigation";
-import { User } from "@/types/user";
 import { forwardRef } from "react";
-import { Skill, Social } from "@prisma/client";
-import { About } from "@/types/about";
-import { Project } from "@/types/project";
-import useFetch from "@/hooks/useFetch";
 
 type Skills = {
   all: Skill[];
@@ -28,31 +25,31 @@ export function MyNavigationMenu() {
     data: skill,
     isLoading: isSkillLoading,
     error: skillError,
-  } = useFetch<Skills>("/api/skill/");
+  } = trpc.getUserSkills.useQuery();
 
   const {
     data: user,
     isLoading: isUserLoading,
     error: userError,
-  } = useFetch<User>("/api/");
+  } = trpc.getMainUser.useQuery();
 
   const {
     data: about,
     isLoading: isAboutLoading,
     error: aboutError,
-  } = useFetch<About>("/api/about/");
+  } = trpc.getUserAbout.useQuery();
 
   const {
     data: project,
     isLoading: isProjectLoading,
     error: projectError,
-  } = useFetch<Project[]>("/api/project/");
+  } = trpc.getUserProjects.useQuery();
 
   const {
     data: socials,
     isLoading: isSocialLoading,
     error: socialError,
-  } = useFetch<Social[]>("/api/social/");
+  } = trpc.getUserSocial.useQuery();
 
   return (
     <NavigationMenu>

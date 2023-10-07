@@ -1,16 +1,10 @@
 "use client";
 import { Cursor, useTypewriter } from "react-simple-typewriter";
-import { User } from "@/types/user";
-import { Skill } from "@prisma/client";
-import useFetch from "@/hooks/useFetch";
 import { motion } from "framer-motion";
 import RightClick from "./RightClick";
 import Social from "./Social";
-
-type SkillAPIData = {
-  all: Skill[];
-  skills: string[];
-};
+import { trpc } from "@/app/_trpc/client";
+import { Loader2 } from "lucide-react";
 
 type Props = {};
 
@@ -19,13 +13,13 @@ const Hero = (props: Props) => {
     data: skillAPIData,
     isLoading: isSkillLoading,
     error: skillError,
-  } = useFetch<SkillAPIData>("/api/skill/");
+  } = trpc.getUserSkills.useQuery();
 
   const {
     data: user,
     isLoading: isUserLoading,
     error: userError,
-  } = useFetch<User>("/api/");
+  } = trpc.getMainUser.useQuery();
 
   const [text, count] = useTypewriter({
     words: skillAPIData?.skills || [""],
@@ -37,7 +31,7 @@ const Hero = (props: Props) => {
     <>
       {isSkillLoading && isUserLoading && (
         <p className="flex items-center justify-center content-center">
-          Loading...
+          <Loader2 className="h-4 w-4 animate-spin mr-4" /> Loading...
         </p>
       )}
       {!isSkillLoading && !isUserLoading && user?.name.length === 0 && (

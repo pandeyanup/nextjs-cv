@@ -1,25 +1,14 @@
 "use client";
 
-import useFetch from "@/hooks/useFetch";
-import { Project } from "@/types/project";
+import { Loader2 } from "lucide-react";
 import Link from "next/link";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { trpc } from "../_trpc/client";
 
 type Props = {};
 
 const Project = (props: Props) => {
-  const {
-    data: project,
-    isLoading,
-    error,
-  } = useFetch<Project[]>("/api/project/");
+  const { data: project, isLoading, error } = trpc.getUserProjects.useQuery();
+
   return (
     <>
       <div className="flex justify-center items-center uppercase tracking-[12px] mb-10 text-3xl font-bold">
@@ -27,7 +16,7 @@ const Project = (props: Props) => {
       </div>
       {isLoading && (
         <p className="flex items-center justify-center content-center">
-          Loading...
+          <Loader2 className="h-4 w-4 animate-spin mr-4" /> Loading...
         </p>
       )}
       {!isLoading && project?.length === 0 && (
@@ -35,11 +24,11 @@ const Project = (props: Props) => {
           No data found.
         </p>
       )}
-      {!isLoading && error && (
+      {!isLoading && error ? (
         <p className="flex items-center justify-center content-center">
           Error occurred while fetching data.
         </p>
-      )}
+      ) : null}
       {!isLoading && !error && project?.length !== 0 && (
         <div className="sm:px-0 px-4 p-4">
           <div className="flex justify-center items-center">

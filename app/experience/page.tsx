@@ -1,7 +1,7 @@
 "use client";
 
-import useFetch from "@/hooks/useFetch";
-import { WorkExperience } from "@prisma/client";
+import { Loader2 } from "lucide-react";
+import { trpc } from "../_trpc/client";
 
 type Props = {};
 
@@ -10,7 +10,7 @@ const Experience = (props: Props) => {
     data: experiences,
     isLoading,
     error,
-  } = useFetch<WorkExperience[]>("/api/experience/");
+  } = trpc.getUserExperience.useQuery();
   return (
     <div>
       <div className="flex justify-center items-center uppercase tracking-[12px] mb-10 text-3xl font-bold">
@@ -18,7 +18,7 @@ const Experience = (props: Props) => {
       </div>
       {isLoading && (
         <p className="flex items-center justify-center content-center">
-          Loading...
+          <Loader2 className="h-4 w-4 animate-spin mr-4" /> Loading...
         </p>
       )}
       {!isLoading && experiences?.length === 0 && (
