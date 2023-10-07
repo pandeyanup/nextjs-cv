@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/navigation-menu";
 import { cn } from "@/lib/utils";
 import { Skill } from "@prisma/client";
+import { Github } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { forwardRef } from "react";
 
@@ -96,11 +97,15 @@ export function MyNavigationMenu() {
                   {socials?.map((social) => (
                     <div key={social.id}>
                       <a href={social.href}>
-                        <img
-                          className="h-6 w-6"
-                          src={social.src}
-                          alt={social.alt}
-                        />
+                        {social.alt === "Github" ? (
+                          <Github className="h-6 w-6" />
+                        ) : (
+                          <img
+                            className="h-6 w-6"
+                            src={social.src}
+                            alt={social.alt}
+                          />
+                        )}
                       </a>
                     </div>
                   ))}
