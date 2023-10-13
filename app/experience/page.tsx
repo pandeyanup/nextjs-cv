@@ -12,9 +12,9 @@ const Experience = (props: Props) => {
     error,
   } = trpc.getUserExperience.useQuery();
   return (
-    <div>
+    <>
       <div className="flex justify-center items-center uppercase tracking-[12px] mb-10 text-3xl font-bold">
-        Projects
+        Experience
       </div>
       {isLoading && (
         <p className="flex items-center justify-center content-center">
@@ -35,28 +35,34 @@ const Experience = (props: Props) => {
         <div className="sm:px-0 px-4 p-4">
           <div className="flex justify-center items-center">
             <div className="grid grid-cols-1 gap-10">
-              {experiences?.map((experience) => (
-                <div
-                  key={experience.id}
-                  className="px-10 py-4 bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md rounded-lg"
-                >
-                  <p className="text-3xl font-bold mb-2">
-                    {experience.company}
-                  </p>
-                  <p className="text-xl mb-2">{experience.position}</p>
-                  <p className="text-lg mb-2 leading-tight text-muted-foreground">
-                    {experience.startYear}-{experience.endYear}
-                  </p>
-                  <p className="leading-tight text-muted-foreground">
-                    {experience.description}
-                  </p>
-                </div>
-              ))}
+              {experiences?.map((experience) => {
+                return (
+                  <div
+                    key={experience.id}
+                    className="px-10 py-4 bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md rounded-lg"
+                  >
+                    <div className="text-3xl font-bold mb-2">
+                      {experience.company}
+                    </div>
+                    <div className="text-xl mb-2 text-muted-foreground">
+                      {experience.position}
+                    </div>
+
+                    <div className="flex text-lg mb-2 text-muted-foreground w-auto">
+                      <p>{experience.description}</p>
+                    </div>
+
+                    <div className="text-md leading-tight text-muted-foreground">
+                      {experience.startYear} - {experience.endYear}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 };
 

@@ -28,12 +28,12 @@ const Skill = () => {
       {!isLoading && !error && skill?.all.length !== 0 && (
         <div className="sm:px-0 px-4 p-4">
           <div className="flex justify-center items-center">
-            <div className="grid grid-cols-4 gap-5">
+            <div className="grid sm:grid-cols-4 grid-cols-3 gap-5">
               {skill?.all.map((s) => {
                 return (
                   <div
                     key={s.id}
-                    className="px-10 py-4 outline-none focus:shadow-md rounded-lg"
+                    className="sm:px-10 py-4 outline-none focus:shadow-md rounded-lg"
                   >
                     <div className="group relative flex flex-col items-center cursor-pointer">
                       <img

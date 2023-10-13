@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader2 } from "lucide-react";
+import { LinkIcon, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { trpc } from "../_trpc/client";
 
@@ -39,12 +39,13 @@ const Project = (props: Props) => {
                   className="px-10 py-4 bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md rounded-lg"
                 >
                   <div className="text-3xl font-bold mb-2">{p.name}</div>
-                  <div className="text-xl mb-2 text-muted-foreground">
-                    {p.description}
-                  </div>
-                  <div className="text-lg mb-2 text-muted-foreground">
-                    <Link href={p.link}>
-                      <p className="truncate">{p.link}</p>
+                  <div className="prose">{p.description}</div>
+                  <div className="text-lg mb-2">
+                    <Link href={p.link} className="inline">
+                      <div className="flex items-center w-min">
+                        <LinkIcon className="h-6 w-6 mr-2 text-green-600" />
+                        <p className="underline">Github</p>
+                      </div>
                     </Link>
                   </div>
                 </div>

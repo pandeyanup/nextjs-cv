@@ -7,11 +7,18 @@ generator client {
   provider = "prisma-client-js"
 }
 
+model Account {
+  id       String  @id @default(auto()) @map("_id") @db.ObjectId
+  email    String  @unique
+  password String
+  User     User?   @relation(fields: [userId], references: [id])
+  userId   String? @db.ObjectId
+}
+
 model User {
   id             String           @id @default(auto()) @map("_id") @db.ObjectId
   email          String           @unique
   name           String
-  password       String
   image          String
   phone          String
   About          About            @relation(fields: [aboutId], references: [id])
@@ -23,6 +30,7 @@ model User {
   WorkExperience WorkExperience[]
   aboutId        String           @db.ObjectId
   addressId      String           @db.ObjectId
+  Account        Account[]
 }
 
 model About {
@@ -57,8 +65,8 @@ model Education {
   school      String
   degree      String
   field       String?
-  startYear   Int
-  endYear     Int
+  startYear   String
+  endYear     String
   description String
   User        User    @relation(fields: [userId], references: [id])
   userId      String  @db.ObjectId
@@ -77,8 +85,8 @@ model WorkExperience {
   id          String  @id @default(auto()) @map("_id") @db.ObjectId
   company     String
   position    String
-  startYear   Int
-  endYear     Int
+  startYear   String
+  endYear     String
   description String?
   User        User    @relation(fields: [userId], references: [id])
   userId      String  @db.ObjectId
