@@ -131,7 +131,7 @@ const ProjectTab = (props: Props) => {
       <CardHeader>
         <CardTitle>Project</CardTitle>
         <CardDescription>
-          Make changes to your Projects here. Click save when you're done
+          Make changes to your Projects here. Click save when you&apos;re done
           editing.
         </CardDescription>
       </CardHeader>

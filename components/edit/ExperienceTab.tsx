@@ -142,8 +142,8 @@ const ExperienceTab = (props: Props) => {
       <CardHeader>
         <CardTitle>Education</CardTitle>
         <CardDescription>
-          Make changes to your Experiences here. Click save when you're done
-          editing.
+          Make changes to your Experiences here. Click save when you&apos;re
+          done editing.
         </CardDescription>
       </CardHeader>
       <div>

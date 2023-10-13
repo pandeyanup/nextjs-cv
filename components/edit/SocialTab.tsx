@@ -175,7 +175,7 @@ const SocialTab = (props: Props) => {
           </Button>
         </div>
         <CardDescription>
-          Make changes to your Socials here. Click save when you're done
+          Make changes to your Socials here. Click save when you&apos;re done
           editing.
         </CardDescription>
       </CardHeader>

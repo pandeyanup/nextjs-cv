@@ -154,7 +154,7 @@ const EducationTab = (props: Props) => {
       <CardHeader>
         <CardTitle>Education</CardTitle>
         <CardDescription>
-          Make changes to your Educations here. Click save when you're done
+          Make changes to your Educations here. Click save when you&apos;re done
           editing.
         </CardDescription>
       </CardHeader>

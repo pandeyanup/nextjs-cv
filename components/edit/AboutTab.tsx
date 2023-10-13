@@ -105,7 +105,8 @@ const AboutTab = (props: Props) => {
       <CardHeader>
         <CardTitle>About</CardTitle>
         <CardDescription>
-          Make changes to your About here. Click save when you're done editing.
+          Make changes to your About here. Click save when you&apos;re done
+          editing.
         </CardDescription>
       </CardHeader>
       <div>
