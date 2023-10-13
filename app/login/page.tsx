@@ -1,3 +1,4 @@
+import EditPageButton from "@/components/EditPageButton";
 import Login from "@/components/Login";
 import Logout from "@/components/Logout";
 import { getServerSession } from "next-auth";
@@ -10,6 +11,7 @@ const Page = async (props: Props) => {
     return (
       <div>
         <Logout />
+        <EditPageButton />
       </div>
     );
   }
