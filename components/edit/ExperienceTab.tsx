@@ -378,7 +378,7 @@ const ExperienceTab = (props: Props) => {
                       "col-span-3",
                       errors.startYear && "focus-visible:ring-red-500"
                     )}
-                    placeholder="80"
+                    placeholder="2019"
                   />
                 </div>
                 <div className="space-y-1">
@@ -392,7 +392,7 @@ const ExperienceTab = (props: Props) => {
                       "col-span-3",
                       errors.endYear && "focus-visible:ring-red-500"
                     )}
-                    placeholder="80"
+                    placeholder="2021"
                   />
                 </div>
               </div>
