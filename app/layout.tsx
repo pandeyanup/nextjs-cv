@@ -1,18 +1,15 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
 import { MyNavigationMenu } from "@/components/MyNavigationMenu";
 import Providers from "@/components/Providers";
 import ThemeToggle from "@/components/theme/ThemeToggle";
 import { ThemeProvider } from "@/components/theme/theme-provider";
+import { constructMetadata } from "@/lib/utils";
+import { Inter } from "next/font/google";
 import { Toaster } from "sonner";
+import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
-export const metadata: Metadata = {
-  title: "Anup Pandey",
-  description: "Anup Pandey. Full-Stack Developer | Backend Developer",
-};
+export const metadata = constructMetadata();
 
 export default function RootLayout({
   children,

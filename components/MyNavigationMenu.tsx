@@ -10,7 +10,6 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 import { cn } from "@/lib/utils";
-import { Skill } from "@prisma/client";
 import { Github } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { forwardRef } from "react";

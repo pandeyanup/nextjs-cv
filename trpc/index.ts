@@ -1,8 +1,8 @@
 import { db } from "@/lib/db";
-import { privateProcedure, publicProcedure, router } from "./trpc";
+import { LoginValidator } from "@/lib/validator/secret";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { LoginValidator } from "@/lib/validator/secret";
+import { privateProcedure, publicProcedure, router } from "./trpc";
 
 // query - mainly for getting data --GET
 // mutation - mainly for changing data --POST, PATCH, DELETE

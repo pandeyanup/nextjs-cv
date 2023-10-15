@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
-import axios, { AxiosError } from "axios";
 import { useToast } from "@/components/ui/use-toast";
+import axios, { AxiosError } from "axios";
+import { useEffect, useState } from "react";
 
 type UseFetchResponse<T> = {
   data: T | null;

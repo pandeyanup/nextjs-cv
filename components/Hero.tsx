@@ -1,10 +1,10 @@
 "use client";
-import { Cursor, useTypewriter } from "react-simple-typewriter";
+import { trpc } from "@/app/_trpc/client";
 import { motion } from "framer-motion";
+import { Loader2 } from "lucide-react";
+import { Cursor, useTypewriter } from "react-simple-typewriter";
 import RightClick from "./RightClick";
 import Social from "./Social";
-import { trpc } from "@/app/_trpc/client";
-import { Loader2 } from "lucide-react";
 
 type Props = {};
 
