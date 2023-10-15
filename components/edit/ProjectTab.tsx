@@ -10,14 +10,22 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useQueryClient } from "@tanstack/react-query";
 import { TRPCClientError } from "@trpc/client";
-import { Edit2, Loader2, Loader2Icon, Trash2 } from "lucide-react";
+import { Edit2, Loader2, Loader2Icon, PlusCircle, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -61,7 +69,9 @@ const ProjectTab = (props: Props) => {
     },
   });
 
+  const [openInputFields, setOpenInputFields] = useState<boolean>(false);
   const [editProject, setEditProject] = useState<boolean>(false);
+  const [addingProject, setAddingProject] = useState<boolean>(false);
   const [projectFormValues, setProjectFormValues] =
     useState<TProjectPayload | null>(null);
 
@@ -78,6 +88,12 @@ const ProjectTab = (props: Props) => {
       setValue("name", projectFormValues.name);
       setValue("description", projectFormValues.description);
       setValue("link", projectFormValues.link);
+    } else {
+      setValue("projectId", "");
+      setValue("name", "");
+      setValue("description", "");
+      setValue("link", "");
+      setCurrentlyEditingProject(null);
     }
   }, [projectFormValues]);
 
@@ -105,18 +121,44 @@ const ProjectTab = (props: Props) => {
     setValue("description", description);
     setValue("link", link);
     setValue("projectId", projectId);
-    updateProject({ link, name, description, id: projectId });
+    if (editProject) updateProject({ link, name, description, id: projectId });
+    else if (addingProject) addProject({ link, name, description, userId });
+    setOpenInputFields(false);
+    setEditProject(false);
+    setAddingProject(false);
+    setProjectFormValues(null);
+    setCurrentlyEditingProject(null);
   };
-
-  const queryClient = useQueryClient();
 
   const { mutate: updateProject, isLoading: isUpdateProjectLoading } =
     trpc.editProject.useMutation({
       onSuccess: (data) => {
         utils.getUserProjects.invalidate();
+        setOpenInputFields(false);
         setEditProject(false);
-        // Remove the form values and remove the social id from currentlyEditingSocial
+        setAddingProject(false);
+        setProjectFormValues(null);
+        setCurrentlyEditingProject(null);
         toast.success("Project updated successfully");
+      },
+      onError: (err) => {
+        if (err instanceof TRPCClientError) {
+          return toast.error(err.message);
+        }
+        toast.error("Request failed. Please try again.");
+      },
+    });
+
+  const { mutate: addProject, isLoading: isProjectCreating } =
+    trpc.addProject.useMutation({
+      onSuccess: () => {
+        utils.getUserProjects.invalidate();
+        setOpenInputFields(false);
+        setEditProject(false);
+        setAddingProject(false);
+        setProjectFormValues(null);
+        setCurrentlyEditingProject(null);
+        toast.success("Project added successfully");
       },
       onError: (err) => {
         if (err instanceof TRPCClientError) {
@@ -129,7 +171,22 @@ const ProjectTab = (props: Props) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Project</CardTitle>
+        <div className="flex w-full justify-between items-center">
+          <CardTitle>Project</CardTitle>
+          <Button
+            className="ml-2 justify-end"
+            variant={"ghost"}
+            onClick={() => {
+              setOpenInputFields(true);
+              setEditProject(false);
+              setAddingProject(true);
+              setProjectFormValues(null);
+              setCurrentlyEditingProject(null);
+            }}
+          >
+            <PlusCircle className="h-4 w-4" /> Add New
+          </Button>
+        </div>
         <CardDescription>
           Make changes to your Projects here. Click save when you&apos;re done
           editing.
@@ -138,8 +195,8 @@ const ProjectTab = (props: Props) => {
       <div>
         <ScrollArea
           className={cn("w-auto", {
-            "relative h-[420px]": !editProject,
-            "h-72": editProject,
+            "relative h-[420px]": !openInputFields,
+            "h-72": openInputFields,
           })}
         >
           <div className="p-4 space-y-4">
@@ -163,13 +220,15 @@ const ProjectTab = (props: Props) => {
                     className="justify-self-start"
                     variant={"ghost"}
                     onClick={() => {
+                      setAddingProject(false);
+                      setEditProject(true);
+                      setOpenInputFields(true);
                       setProjectFormValues({
                         projectId: project.id,
                         link: project.link,
                         name: project.name,
                         description: project.description,
                       });
-                      setEditProject(true);
                       setCurrentlyEditingProject((prev) =>
                         prev === project.id ? null : project.id
                       );
@@ -177,26 +236,56 @@ const ProjectTab = (props: Props) => {
                   >
                     <Edit2 className="h-4 w-4" />
                   </Button>
-                  <Button
-                    className="justify-self-start"
-                    variant={"destructive"}
-                    onClick={() => {
-                      deleteProject({ id: project.id });
-                    }}
-                  >
-                    {currentlyDeletingProject === project.id ? (
-                      <Loader2Icon className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Trash2 className="h-4 w-4" />
-                    )}
-                  </Button>
+
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button
+                        className="justify-self-start"
+                        variant={"destructive"}
+                      >
+                        {currentlyDeletingProject === project.id ? (
+                          <Loader2Icon className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Trash2 className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Are you sure absolutely sure?</DialogTitle>
+                        <DialogDescription>
+                          This action cannot be undone. Are you sure you want to
+                          permanently delete this item from our servers?
+                        </DialogDescription>
+                      </DialogHeader>
+                      <DialogFooter>
+                        <Button
+                          variant={"destructive"}
+                          onClick={() => {
+                            deleteProject({ id: project.id });
+                          }}
+                        >
+                          {currentlyDeletingProject === project.id ? (
+                            <Loader2Icon className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <div className="inline">
+                              <div className="flex items-center space-x-2">
+                                <Trash2 className="h-4 w-4" />
+                                <p>Delete</p>
+                              </div>
+                            </div>
+                          )}
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
                 </CardFooter>
               </Card>
             ))}
           </div>
         </ScrollArea>
       </div>
-      {editProject ? (
+      {openInputFields ? (
         <>
           <Separator />
           <div className="mt-6">
@@ -242,18 +331,32 @@ const ProjectTab = (props: Props) => {
               </div>
             </CardContent>
             <CardFooter className="flex space-x-2">
-              <Button
-                type="submit"
-                onClick={() => handleSubmit(handleProjectPageSubmit)()}
-              >
-                {isUpdateProjectLoading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : null}
-                Save changes
-              </Button>
+              {addingProject ? (
+                <Button
+                  type="submit"
+                  onClick={() => handleSubmit(handleProjectPageSubmit)()}
+                >
+                  {isProjectCreating ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : null}
+                  Save
+                </Button>
+              ) : (
+                <Button
+                  type="submit"
+                  onClick={() => handleSubmit(handleProjectPageSubmit)()}
+                >
+                  {isUpdateProjectLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : null}
+                  Save changes
+                </Button>
+              )}
               <Button
                 variant={"destructive"}
                 onClick={() => {
+                  setOpenInputFields(false);
+                  setAddingProject(false);
                   setEditProject(false);
                   setCurrentlyEditingProject(null);
                   setCurrentlyDeletingProject(null);

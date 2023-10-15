@@ -10,6 +10,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -232,19 +241,49 @@ const SkillTab = (props: Props) => {
                   >
                     <Edit2 className="h-4 w-4" />
                   </Button>
-                  <Button
-                    className="justify-self-start"
-                    variant={"destructive"}
-                    onClick={() => {
-                      deleteSkill({ id: skill.id });
-                    }}
-                  >
-                    {currentlyDeletingSkill === skill.id ? (
-                      <Loader2Icon className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Trash2 className="h-4 w-4" />
-                    )}
-                  </Button>
+
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button
+                        className="justify-self-start"
+                        variant={"destructive"}
+                      >
+                        {currentlyDeletingSkill === skill.id ? (
+                          <Loader2Icon className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Trash2 className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Are you sure absolutely sure?</DialogTitle>
+                        <DialogDescription>
+                          This action cannot be undone. Are you sure you want to
+                          permanently delete this item from our servers?
+                        </DialogDescription>
+                      </DialogHeader>
+                      <DialogFooter>
+                        <Button
+                          variant={"destructive"}
+                          onClick={() => {
+                            deleteSkill({ id: skill.id });
+                          }}
+                        >
+                          {currentlyDeletingSkill === skill.id ? (
+                            <Loader2Icon className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <div className="inline">
+                              <div className="flex items-center space-x-2">
+                                <Trash2 className="h-4 w-4" />
+                                <p>Delete</p>
+                              </div>
+                            </div>
+                          )}
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
                 </CardContent>
               </Card>
             ))}

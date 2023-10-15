@@ -10,6 +10,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -104,10 +113,10 @@ const SocialTab = (props: Props) => {
   const userId = "6517cbab867897b4cda0395f";
 
   const handleSocialPageSubmit = ({
+    socialId,
     src,
     alt,
     href,
-    socialId,
   }: TSocialPayload) => {
     setValue("alt", alt);
     setValue("href", href);
@@ -115,6 +124,11 @@ const SocialTab = (props: Props) => {
     setValue("socialId", socialId);
     if (editSocial) updateSocial({ src, alt, href, id: socialId });
     else if (addingSocial) addSocial({ src, alt, href, userId });
+    setOpenInputFields(false);
+    setEditSocial(false);
+    setAddingSocial(false);
+    setSocialFormValues(null);
+    setCurrentlyEditingSocial(null);
   };
 
   const { mutate: updateSocial, isLoading: isUpdateSocialLoading } =
@@ -122,10 +136,10 @@ const SocialTab = (props: Props) => {
       onSuccess: (data) => {
         utils.getUserSocial.invalidate();
         setOpenInputFields(false);
-        setAddingSocial(false);
         setEditSocial(false);
+        setAddingSocial(false);
+        setSocialFormValues(null);
         setCurrentlyEditingSocial(null);
-        setCurrentlyDeletingSocial(null);
         toast.success("Social updated successfully");
       },
       onError: (err) => {
@@ -165,10 +179,10 @@ const SocialTab = (props: Props) => {
             variant={"ghost"}
             onClick={() => {
               setOpenInputFields(true);
-              setAddingSocial(true);
               setEditSocial(false);
+              setAddingSocial(true);
+              setSocialFormValues(null);
               setCurrentlyEditingSocial(null);
-              setCurrentlyDeletingSocial(null);
             }}
           >
             <PlusCircle className="h-4 w-4" /> Add New
@@ -221,19 +235,49 @@ const SocialTab = (props: Props) => {
                   >
                     <Edit2 className="h-4 w-4" />
                   </Button>
-                  <Button
-                    className="justify-self-start"
-                    variant={"destructive"}
-                    onClick={() => {
-                      deleteSocial({ id: social.id });
-                    }}
-                  >
-                    {currentlyDeletingSocial === social.id ? (
-                      <Loader2Icon className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Trash2 className="h-4 w-4" />
-                    )}
-                  </Button>
+
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button
+                        className="justify-self-start"
+                        variant={"destructive"}
+                      >
+                        {currentlyDeletingSocial === social.id ? (
+                          <Loader2Icon className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Trash2 className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Are you sure absolutely sure?</DialogTitle>
+                        <DialogDescription>
+                          This action cannot be undone. Are you sure you want to
+                          permanently delete this item from our servers?
+                        </DialogDescription>
+                      </DialogHeader>
+                      <DialogFooter>
+                        <Button
+                          variant={"destructive"}
+                          onClick={() => {
+                            deleteSocial({ id: social.id });
+                          }}
+                        >
+                          {currentlyDeletingSocial === social.id ? (
+                            <Loader2Icon className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <div className="inline">
+                              <div className="flex items-center space-x-2">
+                                <Trash2 className="h-4 w-4" />
+                                <p>Delete</p>
+                              </div>
+                            </div>
+                          )}
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
                 </CardContent>
               </Card>
             ))}

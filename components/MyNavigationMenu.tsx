@@ -15,10 +15,6 @@ import { Github } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { forwardRef } from "react";
 
-type Skills = {
-  all: Skill[];
-};
-
 export function MyNavigationMenu() {
   const router = useRouter();
 

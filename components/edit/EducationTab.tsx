@@ -10,16 +10,24 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useQueryClient } from "@tanstack/react-query";
 import { TRPCClientError } from "@trpc/client";
-import { Edit2, Loader2, Loader2Icon, Trash2 } from "lucide-react";
+import { Edit2, Loader2, Loader2Icon, PlusCircle, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { set, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Separator } from "../ui/separator";
@@ -37,7 +45,7 @@ const EducationTab = (props: Props) => {
   >(null);
 
   const {
-    data: education,
+    data: educations,
     isLoading: isEducationLoading,
     error: educationError,
   } = trpc.getUserEducation.useQuery();
@@ -61,7 +69,9 @@ const EducationTab = (props: Props) => {
     },
   });
 
+  const [openInputFields, setOpenInputFields] = useState<boolean>(false);
   const [editEducation, setEditEducation] = useState<boolean>(false);
+  const [addingEducation, setAddingEducation] = useState<boolean>(false);
   const [educationFormValues, setEducationFormValues] =
     useState<TEducationPayload | null>(null);
 
@@ -88,6 +98,15 @@ const EducationTab = (props: Props) => {
       setValue("startYear", educationFormValues.startYear);
       setValue("endYear", educationFormValues.endYear);
       setValue("field", educationFormValues.field);
+    } else {
+      setValue("educationId", "");
+      setValue("degree", "");
+      setValue("school", "");
+      setValue("description", "");
+      setValue("startYear", "");
+      setValue("endYear", "");
+      setValue("field", "");
+      setCurrentlyEditingEducation(null);
     }
   }, [educationFormValues]);
 
@@ -121,25 +140,62 @@ const EducationTab = (props: Props) => {
     setValue("endYear", endYear);
     setValue("startYear", startYear);
     setValue("field", field);
-
-    updateEducation({
-      id,
-      school,
-      degree,
-      description,
-      startYear,
-      endYear,
-      field,
-    });
+    if (editEducation)
+      updateEducation({
+        id,
+        school,
+        degree,
+        description,
+        startYear,
+        endYear,
+        field,
+      });
+    else if (addingEducation)
+      addEducation({
+        userId,
+        school,
+        degree,
+        description,
+        startYear,
+        endYear,
+        field,
+      });
+    setOpenInputFields(false);
+    setEditEducation(false);
+    setAddingEducation(false);
+    setEducationFormValues(null);
+    setCurrentlyEditingEducation(null);
   };
 
   const { mutate: updateEducation, isLoading: isUpdateEducationLoading } =
     trpc.editEducation.useMutation({
       onSuccess: (data) => {
         utils.getUserEducation.invalidate();
+        setOpenInputFields(false);
         setEditEducation(false);
-        // Remove the form values and remove the social id from currentlyEditingSocial
+        setAddingEducation(false);
+        setEducationFormValues(null);
+        setCurrentlyEditingEducation(null);
         toast.success("Education updated successfully");
+      },
+      onError: (err) => {
+        if (err instanceof TRPCClientError) {
+          return toast.error(err.message);
+        }
+        toast.error("Request failed. Please try again.");
+      },
+    });
+
+  const { mutate: addEducation, isLoading: isEducationCreating } =
+    trpc.addEducation.useMutation({
+      onSuccess: () => {
+        utils.getUserEducation.invalidate();
+        setOpenInputFields(false);
+        setEditEducation(false);
+        setAddingEducation(false);
+        setEducationFormValues(null);
+        setCurrentlyEditingEducation(null);
+        toast.success("Education added successfully");
       },
       onError: (err) => {
         if (err instanceof TRPCClientError) {
@@ -152,7 +208,22 @@ const EducationTab = (props: Props) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Education</CardTitle>
+        <div className="flex w-full justify-between items-center">
+          <CardTitle>Education</CardTitle>
+          <Button
+            className="ml-2 justify-end"
+            variant={"ghost"}
+            onClick={() => {
+              setOpenInputFields(true);
+              setEditEducation(false);
+              setAddingEducation(true);
+              setEducationFormValues(null);
+              setCurrentlyEditingEducation(null);
+            }}
+          >
+            <PlusCircle className="h-4 w-4" /> Add New
+          </Button>
+        </div>
         <CardDescription>
           Make changes to your Educations here. Click save when you&apos;re done
           editing.
@@ -161,68 +232,103 @@ const EducationTab = (props: Props) => {
       <div>
         <ScrollArea
           className={cn("w-auto", {
-            "relative h-[420px]": !editEducation,
-            "h-72": editEducation,
+            "relative h-[420px]": !openInputFields,
+            "h-72": openInputFields,
           })}
         >
           <div className="p-4 space-y-4">
-            {education?.map((edu) => (
-              <Card key={edu.id}>
+            {educations?.map((education) => (
+              <Card key={education.id}>
                 <CardHeader>
                   <CardTitle className="inline">
                     <div className="flex items-center">
-                      <p>{edu.school}</p>
+                      <p>{education.school}</p>
                     </div>
                   </CardTitle>
                   <CardDescription>
                     <p>
-                      {edu.degree} ({edu.startYear}-{edu.endYear})
+                      {education.degree} ({education.startYear}-
+                      {education.endYear})
                     </p>
                   </CardDescription>
                 </CardHeader>
-                {edu.field ? <CardContent>{edu.field}</CardContent> : null}
+                {education.field ? (
+                  <CardContent>{education.field}</CardContent>
+                ) : null}
                 <CardFooter className="flex space-x-2">
                   <Button
                     className="justify-self-start"
                     variant={"ghost"}
                     onClick={() => {
-                      setEducationFormValues({
-                        educationId: edu.id,
-                        school: edu.school,
-                        description: edu.description,
-                        endYear: edu.endYear,
-                        startYear: edu.startYear,
-                        degree: edu.degree,
-                        field: edu.field,
-                      });
+                      setAddingEducation(false);
                       setEditEducation(true);
+                      setOpenInputFields(true);
+                      setEducationFormValues({
+                        educationId: education.id,
+                        school: education.school,
+                        description: education.description,
+                        endYear: education.endYear,
+                        startYear: education.startYear,
+                        degree: education.degree,
+                        field: education.field,
+                      });
                       setCurrentlyEditingEducation((prev) =>
-                        prev === edu.id ? null : edu.id
+                        prev === education.id ? null : education.id
                       );
                     }}
                   >
                     <Edit2 className="h-4 w-4" />
                   </Button>
-                  <Button
-                    className="justify-self-start"
-                    variant={"destructive"}
-                    onClick={() => {
-                      deleteEducation({ id: edu.id });
-                    }}
-                  >
-                    {currentlyDeletingEducation === edu.id ? (
-                      <Loader2Icon className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Trash2 className="h-4 w-4" />
-                    )}
-                  </Button>
+
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button
+                        className="justify-self-start"
+                        variant={"destructive"}
+                      >
+                        {currentlyDeletingEducation === education.id ? (
+                          <Loader2Icon className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Trash2 className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Are you sure absolutely sure?</DialogTitle>
+                        <DialogDescription>
+                          This action cannot be undone. Are you sure you want to
+                          permanently delete this item from our servers?
+                        </DialogDescription>
+                      </DialogHeader>
+                      <DialogFooter>
+                        <Button
+                          variant={"destructive"}
+                          onClick={() => {
+                            deleteEducation({ id: education.id });
+                          }}
+                        >
+                          {currentlyDeletingEducation === education.id ? (
+                            <Loader2Icon className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <div className="inline">
+                              <div className="flex items-center space-x-2">
+                                <Trash2 className="h-4 w-4" />
+                                <p>Delete</p>
+                              </div>
+                            </div>
+                          )}
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
                 </CardFooter>
               </Card>
             ))}
           </div>
         </ScrollArea>
       </div>
-      {editEducation ? (
+      {openInputFields ? (
         <>
           <Separator />
           <div className="mt-6">
@@ -295,7 +401,7 @@ const EducationTab = (props: Props) => {
                       "col-span-3",
                       errors.startYear && "focus-visible:ring-red-500"
                     )}
-                    placeholder="80"
+                    placeholder="2018"
                   />
                 </div>
                 <div className="space-y-1">
@@ -309,24 +415,38 @@ const EducationTab = (props: Props) => {
                       "col-span-3",
                       errors.endYear && "focus-visible:ring-red-500"
                     )}
-                    placeholder="80"
+                    placeholder="2023"
                   />
                 </div>
               </div>
             </CardContent>
             <CardFooter className="flex space-x-2">
-              <Button
-                type="submit"
-                onClick={() => handleSubmit(handleEducationPageSubmit)()}
-              >
-                {isUpdateEducationLoading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : null}
-                Save changes
-              </Button>
+              {addingEducation ? (
+                <Button
+                  type="submit"
+                  onClick={() => handleSubmit(handleEducationPageSubmit)()}
+                >
+                  {isEducationCreating ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : null}
+                  Save
+                </Button>
+              ) : (
+                <Button
+                  type="submit"
+                  onClick={() => handleSubmit(handleEducationPageSubmit)()}
+                >
+                  {isUpdateEducationLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : null}
+                  Save changes
+                </Button>
+              )}
               <Button
                 variant={"destructive"}
                 onClick={() => {
+                  setOpenInputFields(false);
+                  setAddingEducation(false);
                   setEditEducation(false);
                   setCurrentlyEditingEducation(null);
                   setCurrentlyDeletingEducation(null);

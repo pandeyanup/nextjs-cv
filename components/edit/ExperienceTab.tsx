@@ -10,16 +10,24 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useQueryClient } from "@tanstack/react-query";
 import { TRPCClientError } from "@trpc/client";
-import { Edit2, Loader2, Loader2Icon, Trash2 } from "lucide-react";
+import { Edit2, Loader2, Loader2Icon, PlusCircle, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { set, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Separator } from "../ui/separator";
@@ -36,7 +44,7 @@ const ExperienceTab = (props: Props) => {
   >(null);
 
   const {
-    data: experience,
+    data: experiences,
     isLoading: isExperienceLoading,
     error: experienceError,
   } = trpc.getUserExperience.useQuery();
@@ -60,7 +68,9 @@ const ExperienceTab = (props: Props) => {
     },
   });
 
+  const [openInputFields, setOpenInputFields] = useState<boolean>(false);
   const [editExperience, setEditExperience] = useState<boolean>(false);
+  const [addingExperience, setAddingExperience] = useState<boolean>(false);
   const [experienceFormValues, setExperienceFormValues] =
     useState<TExperiencePayload | null>(null);
 
@@ -80,6 +90,13 @@ const ExperienceTab = (props: Props) => {
       setValue("description", experienceFormValues.description);
       setValue("startYear", experienceFormValues.startYear);
       setValue("endYear", experienceFormValues.endYear);
+    } else {
+      setValue("experienceId", "");
+      setValue("position", "");
+      setValue("description", "");
+      setValue("startYear", "");
+      setValue("endYear", "");
+      setCurrentlyEditingExperience(null);
     }
   }, [experienceFormValues]);
 
@@ -110,24 +127,60 @@ const ExperienceTab = (props: Props) => {
     setValue("endYear", endYear);
     setValue("startYear", startYear);
     setValue("position", position);
-
-    updateExperience({
-      id,
-      company,
-      description,
-      endYear,
-      position,
-      startYear,
-    });
+    if (editExperience)
+      updateExperience({
+        id,
+        company,
+        description,
+        endYear,
+        position,
+        startYear,
+      });
+    else if (addingExperience)
+      addExperience({
+        company,
+        description,
+        endYear,
+        position,
+        startYear,
+        userId,
+      });
+    setOpenInputFields(false);
+    setEditExperience(false);
+    setAddingExperience(false);
+    setExperienceFormValues(null);
+    setCurrentlyEditingExperience(null);
   };
 
   const { mutate: updateExperience, isLoading: isUpdateExperienceLoading } =
     trpc.editExperience.useMutation({
       onSuccess: (data) => {
         utils.getUserExperience.invalidate();
+        setOpenInputFields(false);
         setEditExperience(false);
-        // Remove the form values and remove the social id from currentlyEditingSocial
+        setAddingExperience(false);
+        setExperienceFormValues(null);
+        setCurrentlyEditingExperience(null);
         toast.success("Experience updated successfully");
+      },
+      onError: (err) => {
+        if (err instanceof TRPCClientError) {
+          return toast.error(err.message);
+        }
+        toast.error("Request failed. Please try again.");
+      },
+    });
+
+  const { mutate: addExperience, isLoading: isExperienceCreating } =
+    trpc.addExperience.useMutation({
+      onSuccess: () => {
+        utils.getUserExperience.invalidate();
+        setOpenInputFields(false);
+        setEditExperience(false);
+        setAddingExperience(false);
+        setExperienceFormValues(null);
+        setCurrentlyEditingExperience(null);
+        toast.success("Experience added successfully");
       },
       onError: (err) => {
         if (err instanceof TRPCClientError) {
@@ -140,7 +193,22 @@ const ExperienceTab = (props: Props) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Education</CardTitle>
+        <div className="flex w-full justify-between items-center">
+          <CardTitle>Experience</CardTitle>
+          <Button
+            className="ml-2 justify-end"
+            variant={"ghost"}
+            onClick={() => {
+              setOpenInputFields(true);
+              setEditExperience(false);
+              setAddingExperience(true);
+              setExperienceFormValues(null);
+              setCurrentlyEditingExperience(null);
+            }}
+          >
+            <PlusCircle className="h-4 w-4" /> Add New
+          </Button>
+        </div>
         <CardDescription>
           Make changes to your Experiences here. Click save when you&apos;re
           done editing.
@@ -149,67 +217,108 @@ const ExperienceTab = (props: Props) => {
       <div>
         <ScrollArea
           className={cn("w-auto", {
-            "relative h-[420px]": !editExperience,
-            "h-72": editExperience,
+            "relative h-[420px]": !openInputFields,
+            "h-72": openInputFields,
           })}
         >
           <div className="p-4 space-y-4">
-            {experience?.map((exp) => (
-              <Card key={exp.id}>
-                <CardHeader>
-                  <CardTitle className="inline">
-                    <div className="flex items-center">
-                      <p>{exp.company}</p>
-                    </div>
-                  </CardTitle>
-                  <CardDescription>
-                    <p>
-                      {exp.position} ({exp.startYear}-{exp.endYear})
-                    </p>
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>{exp.description}</CardContent>
-                <CardFooter className="flex space-x-2">
-                  <Button
-                    className="justify-self-start"
-                    variant={"ghost"}
-                    onClick={() => {
-                      setExperienceFormValues({
-                        experienceId: exp.id,
-                        position: exp.position,
-                        company: exp.company,
-                        description: exp.description,
-                        endYear: exp.endYear,
-                        startYear: exp.startYear,
-                      });
-                      setEditExperience(true);
-                      setCurrentlyEditingExperience((prev) =>
-                        prev === exp.id ? null : exp.id
-                      );
-                    }}
-                  >
-                    <Edit2 className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    className="justify-self-start"
-                    variant={"destructive"}
-                    onClick={() => {
-                      deleteExperience({ id: exp.id });
-                    }}
-                  >
-                    {currentlyDeletingExperience === exp.id ? (
-                      <Loader2Icon className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Trash2 className="h-4 w-4" />
-                    )}
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))}
+            {experiences?.length ? (
+              experiences?.map((experience) => (
+                <Card key={experience.id}>
+                  <CardHeader>
+                    <CardTitle className="inline">
+                      <div className="flex items-center">
+                        <p>{experience.company}</p>
+                      </div>
+                    </CardTitle>
+                    <CardDescription>
+                      <p>
+                        {experience.position} ({experience.startYear}-
+                        {experience.endYear})
+                      </p>
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>{experience.description}</CardContent>
+                  <CardFooter className="flex space-x-2">
+                    <Button
+                      className="justify-self-start"
+                      variant={"ghost"}
+                      onClick={() => {
+                        setAddingExperience(false);
+                        setEditExperience(true);
+                        setOpenInputFields(true);
+                        setExperienceFormValues({
+                          experienceId: experience.id,
+                          position: experience.position,
+                          company: experience.company,
+                          description: experience.description,
+                          endYear: experience.endYear,
+                          startYear: experience.startYear,
+                        });
+                        setCurrentlyEditingExperience((prev) =>
+                          prev === experience.id ? null : experience.id
+                        );
+                      }}
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button
+                          className="justify-self-start"
+                          variant={"destructive"}
+                        >
+                          {currentlyDeletingExperience === experience.id ? (
+                            <Loader2Icon className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>
+                            Are you sure absolutely sure?
+                          </DialogTitle>
+                          <DialogDescription>
+                            This action cannot be undone. Are you sure you want
+                            to permanently delete this item from our servers?
+                          </DialogDescription>
+                        </DialogHeader>
+                        <DialogFooter>
+                          <Button
+                            variant={"destructive"}
+                            onClick={() => {
+                              deleteExperience({ id: experience.id });
+                            }}
+                          >
+                            {currentlyDeletingExperience === experience.id ? (
+                              <Loader2Icon className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <div className="inline">
+                                <div className="flex items-center space-x-2">
+                                  <Trash2 className="h-4 w-4" />
+                                  <p>Delete</p>
+                                </div>
+                              </div>
+                            )}
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+                  </CardFooter>
+                </Card>
+              ))
+            ) : (
+              <p className="flex items-center justify-center content-center">
+                No data found.
+              </p>
+            )}
           </div>
         </ScrollArea>
       </div>
-      {editExperience ? (
+      {openInputFields ? (
         <>
           <Separator />
           <div className="mt-6">
@@ -289,18 +398,32 @@ const ExperienceTab = (props: Props) => {
               </div>
             </CardContent>
             <CardFooter className="flex space-x-2">
-              <Button
-                type="submit"
-                onClick={() => handleSubmit(handleExperiencePageSubmit)()}
-              >
-                {isUpdateExperienceLoading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : null}
-                Save changes
-              </Button>
+              {addingExperience ? (
+                <Button
+                  type="submit"
+                  onClick={() => handleSubmit(handleExperiencePageSubmit)()}
+                >
+                  {isExperienceCreating ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : null}
+                  Save
+                </Button>
+              ) : (
+                <Button
+                  type="submit"
+                  onClick={() => handleSubmit(handleExperiencePageSubmit)()}
+                >
+                  {isUpdateExperienceLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : null}
+                  Save changes
+                </Button>
+              )}
               <Button
                 variant={"destructive"}
                 onClick={() => {
+                  setOpenInputFields(false);
+                  setAddingExperience(false);
                   setEditExperience(false);
                   setCurrentlyEditingExperience(null);
                   setCurrentlyDeletingExperience(null);
